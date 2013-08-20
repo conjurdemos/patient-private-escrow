@@ -14,7 +14,7 @@ raise "No NS provided" unless ns = $config[:ns] = ENV['NS']
 
 raise "No SERVICE_API_KEY provided" unless service_api_key = ENV['SERVICE_API_KEY']
 
-$conjur = Conjur::API::new_from_key("host/#{ns}/services/patient-identity", service_api_key)
+$conjur = Conjur::API::new_from_key("host/#{ns}/patient-identity/1", service_api_key)
 
 helpers do
   def ns;  $config[:ns];  end
@@ -31,32 +31,32 @@ helpers do
   end
 
   def environment_role(environment, role)
-    [ 'sandbox', '@', [ environment.attributes['resource_identifier'], role ].join('/') ].join(':')
+    [ 'sandbox', '@', [ 'environment', environment.resource_id, role ].join('/') ].join(':')
   end
 end
 
 # Create a user
-post '/users/' do
+post '/users' do
   login = params[:login] or halt(400)
   emrid = params[:emrid] or halt(400)
   security_question = params[:question] or halt(400)
   security_answer   = params[:answer]   or halt(400)
 
-  user = $api.create_user(login)
+  user = $conjur.create_user(login)
 
-  environment = $api.create_environment("#{ns}/patient-attributes/#{login}").tap do |environment|
-    $api.create_variable('text/plain', 'identifier').tap do |variable|
-      variable.add_value emrid
-      environment.add_variable 'emrid', variable.id
-    end
-    $api.create_variable('application/json', 'security-question').tap do |variable|
-      variable.add_value({ question: security_question, answer: security_answer }.to_json)
-      environment.add_variable 'security-question', variable.id
-    end
+  $conjur.create_environment("#{ns}/patient-attributes/#{login}")
+  environment = $conjur.environment("#{ns}/patient-attributes/#{login}")
+  $conjur.create_variable('text/plain', 'identifier').tap do |variable|
+    variable.add_value emrid
+    environment.add_variable 'emrid', variable.id
+  end
+  $conjur.create_variable('application/json', 'security-question').tap do |variable|
+    variable.add_value({ question: security_question, answer: security_answer }.to_json)
+    environment.add_variable 'security-question', variable.id
   end
 
-  $api.role(environment_role(environment, 'use_variable')).grant_to "user:$ns-alice"
-  $api.role(environment_role(environment, 'use_variable')).grant_to "group:$ns/teams/support"
+  $conjur.role(environment_role(environment, 'use_variable')).grant_to "user:#{login}"
+  $conjur.role(environment_role(environment, 'use_variable')).grant_to "group:#{ns}/teams/support"
   
   JSON.pretty_generate user.attributes
 end
