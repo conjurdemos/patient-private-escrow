@@ -1,12 +1,14 @@
-Patient Private Attributes Escrow
+Patient Private Attributes
 ======================
 
 ## Overview
 
-A user registration system can create and login patients.
+This demo is a user registration web service to create and login patients. Each patient has
+a typical login and password, plus extended set of sensitive *attributes*, such us an 
+Electronic Medical Record (EMR) Id, and a security question and answer.
 
-A key escrow Environment is created and associated with each new user.
-The Environment contains private attributes : EMR ID and Security Question (and answer).
+The user registration service creates a ConjurEnvironment (key escrow)
+for each new patient, which contains the  private attributes.
 These private attributes are readable, but not writeable, by the user.
 They are also readable by a support team, who may provide patient assistance with login.
 
@@ -17,9 +19,9 @@ which oversees the application.
 
 ### Groups
 
-* An admin group
-* A support team
-* A group representing the patient service (web application)
+* Administrators
+* Support Team
+* Patient Service web application servers / VMs
 
 A *host* identity is created for the patient service web application, and added to the
 service group. 
