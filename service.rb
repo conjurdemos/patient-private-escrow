@@ -9,7 +9,7 @@ $config = {}
 
 ENV['CONJUR_ENV']     = 'production'
 ENV['CONJUR_ACCOUNT'] = 'sandbox'
-ENV['CONJUR_STACK']   = 'v3'
+ENV['CONJUR_STACK']   = 'v4'
 raise "No NS provided" unless ns = $config[:ns] = ENV['NS']
 
 raise "No SERVICE_API_KEY provided" unless service_api_key = ENV['SERVICE_API_KEY']
