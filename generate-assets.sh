@@ -14,10 +14,10 @@ conjur authn:login -u host/$ns/patient-identity/1 --password=$host_api_key
 alice_api_key=`conjur user:create $ns-alice --no-password | jsonfield api_key`
 echo Alice API Key: $alice_api_key
 
-conjur asset:create environment $ns/patient-attributes/$ns-alice
+conjur asset:create environment:$ns/patient-attributes/$ns-alice
 
-conjur asset:members:add environment $ns/patient-attributes/$ns-alice use_variable user:$ns-alice
-conjur asset:members:add environment $ns/patient-attributes/$ns-alice use_variable group:$ns/teams/support
+conjur asset:members:add environment:$ns/patient-attributes/$ns-alice use_variable user:$ns-alice
+conjur asset:members:add environment:$ns/patient-attributes/$ns-alice use_variable group:$ns/teams/support
 
 conjur environment:variables:create $ns/patient-attributes/$ns-alice security-question security-question application/json '{ "question": "In what city were you born?", "answer": "Newton" }'
 
